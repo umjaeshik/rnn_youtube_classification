@@ -37,7 +37,7 @@ def scroll():
         print("에러 발생: ", e)
 
 # f-string
-keyword = ['게임', 'GAME', '뉴스', 'NEWS', '음악', 'MUSIC', '요리', 'COOK', '애완동물', 'PETS']
+keyword = ['게임', 'GAME', '뉴스', 'NEWS', '음악', 'MUSIC', '요리', 'COOK', '애완동물', 'PETS', '스포츠', 'SPORTS']
 keyword_num = 0
 
 for k in range(len(keyword)):
