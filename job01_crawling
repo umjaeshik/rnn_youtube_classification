@@ -37,8 +37,12 @@ def scroll():
         print("에러 발생: ", e)
 
 # f-string
-keyword = ['게임', '뉴스', '음악', '요리', '반려동물']
+keyword = ['게임', 'GAME', '뉴스', 'NEWS', '음악', 'MUSIC', '요리', 'COOK', '애완동물', 'PETS']
+keyword_num = 0
+
 for k in range(len(keyword)):
+    if k % 2 == 1:
+        keyword_num = k-1
     yt_url = f'https://www.youtube.com/results?search_query={keyword[k]}'
     driver = wb.Chrome()
     driver.get(yt_url)
@@ -69,7 +73,7 @@ for k in range(len(keyword)):
 
         titleList.append(title)
         youtuberList.append(youtuber)
-        categoryList.append(keyword[k])
+        categoryList.append(keyword[keyword_num])
 
     # 유튜브 내용을 저장할 딕셔너리 생성
     yt_dic = {
