@@ -2,6 +2,7 @@ from selenium import webdriver as wb
 from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup as bs
 
+import re
 import random
 import time
 import pandas as pd
@@ -36,54 +37,75 @@ def scroll():
     except Exception as e:
         print("에러 발생: ", e)
 
-# f-string
-keyword = ['게임', 'GAME', '뉴스', 'NEWS', '음악', 'MUSIC', '요리', 'COOK', '애완동물', 'PETS', '스포츠', 'SPORTS']
-keyword_num = 0
 
-for k in range(len(keyword)):
-    if k % 2 == 1:
-        keyword_num = k-1
-    yt_url = f'https://www.youtube.com/results?search_query={keyword[k]}'
+# f-string
+keywords = ['music','음악','game','게임','sports','스포츠','cook','요리','pets','애완동물','nature','자연']
+key_count = 0
+
+
+for keyword in keywords:
+
+    yt_url = f'https://www.youtube.com/results?search_query={keyword}'
     driver = wb.Chrome()
-    driver.get(yt_url)
+    try:
+        driver.get(yt_url)
+    except:
+        print('drivet.get', keyword)
 
     # 브라우저 로드가 완료되기 위한 시간
     time.sleep(2)
 
+    #driver.find_element(By.XPATH, '//*[@id="text"]').click()
+
+
+
+    #body = driver.find_element(By.TAG_NAME, value='body')
+
+    # 스크롤 key값 활용: PageDown, PageUp, 방향기(위/아래)
     scroll()
 
     # selenium을 이용해서 HTML문서를 변환한 후에는 반드시 브라우저를 종료해야 한다!
-    html = bs(driver.page_source, 'lxml')
-    print(html)
+    html = bs(driver.page_source, 'html.parser')
+    #print(html)
 
     driver.close()
-
-    titleList = []
-    youtuberList = []
-    categoryList = []
-
+    if key_count % 2 == 0:
+        titleList=[]
+     #contentUrlList = []
+        #reviewsList = []
+    # #    print(title_tag.text)
+    #     titles.append(re.compile('[^가-힣 | a-z | A-Z]').sub(' ',title_tag.text)) #정규표현식이용
     for content in html.select('a#video-title'):
-        print(content)
         title = content.get('title')
-
-        start_pos_you = content.get('aria-label').find('게시자:') + 4
-        end_pos_you = content.get('aria-label').rfind('조회수')
-
-        youtuber = content.get('aria-label')[start_pos_you:end_pos_you]
+        title = re.compile('[^가-힣a-zA-Z]').sub(' ', title)
+        # content_url = 'https://www.youtube.com' + content.get('href')
+        #
+        # start_pos = content.get('aria-label').find('조회수') + 4
+        # end_pos = content.get('aria-label').rfind('회')
+        #
+        # reviews = content.get('aria-label')[start_pos:end_pos]
 
         titleList.append(title)
-        youtuberList.append(youtuber)
-        categoryList.append(keyword[keyword_num])
+      #  contentUrlList.append(content_url)
+      #  reviewsList.append(reviews)
+
+    #     print('영상제목:', title)
+    #     print('영상주소:', content_url)
+    #     print('조회수:', reviews)
+    #     print('-'*30)
+
 
     # 유튜브 내용을 저장할 딕셔너리 생성
-    yt_dic = {
-        '영상제목' : titleList,
-        '유튜버' : youtuberList,
-        '카테고리' : categoryList
-    }
+    key_label_num =2*int(key_count/2)
 
-    # 데이터 프레임 생성
-    yt_df = pd.DataFrame(yt_dic)
-    print(yt_df)
+    if key_count % 2 == 1:
 
-    yt_df.to_csv('./data_{}_{}.csv'.format(keyword[k], datetime.datetime.now().strftime('%Y%m%d')), index=False)
+        df_titles = pd.DataFrame()
+        df_section_title = pd.DataFrame(titleList, columns=['titles'])
+        df_section_title['category'] = keywords[key_label_num]
+        df_titles = pd.concat([df_titles, df_section_title], axis='rows', ignore_index=True)
+        df_titles.to_csv('./data/data_{}_{}.csv'.format(keywords[key_count-1], datetime.datetime.now().strftime('%Y%m%d')), index=False)
+        titleList=[]
+    key_count += 1
+
+
