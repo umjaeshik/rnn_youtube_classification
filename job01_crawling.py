@@ -51,6 +51,8 @@ for keyword in keywords:
         driver.get(yt_url)
     except:
         print('drivet.get', keyword)
+        continue
+
 
     # 브라우저 로드가 완료되기 위한 시간
     time.sleep(2)
