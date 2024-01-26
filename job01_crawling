@@ -37,60 +37,49 @@ def scroll():
         print("에러 발생: ", e)
 
 # f-string
-keyword = '강아지'
-yt_url = f'https://www.youtube.com/results?search_query={keyword}'
-driver = wb.Chrome()
-driver.get(yt_url)
+keyword = ['게임', '뉴스', '음악', '요리', '반려동물']
+for k in range(len(keyword)):
+    yt_url = f'https://www.youtube.com/results?search_query={keyword[k]}'
+    driver = wb.Chrome()
+    driver.get(yt_url)
 
-# 브라우저 로드가 완료되기 위한 시간
-time.sleep(2)
+    # 브라우저 로드가 완료되기 위한 시간
+    time.sleep(2)
 
-driver.find_element(By.XPATH, '//*[@id="text"]').click()
+    scroll()
 
+    # selenium을 이용해서 HTML문서를 변환한 후에는 반드시 브라우저를 종료해야 한다!
+    html = bs(driver.page_source, 'lxml')
+    print(html)
 
+    driver.close()
 
-body = driver.find_element(By.TAG_NAME, value='body')
+    titleList = []
+    youtuberList = []
+    categoryList = []
 
-# 스크롤 key값 활용: PageDown, PageUp, 방향기(위/아래)
-scroll()
+    for content in html.select('a#video-title'):
+        print(content)
+        title = content.get('title')
 
-# selenium을 이용해서 HTML문서를 변환한 후에는 반드시 브라우저를 종료해야 한다!
-html = bs(driver.page_source, 'lxml')
-print(html)
+        start_pos_you = content.get('aria-label').find('게시자:') + 4
+        end_pos_you = content.get('aria-label').rfind('조회수')
 
-driver.close()
+        youtuber = content.get('aria-label')[start_pos_you:end_pos_you]
 
-titleList = []
-contentUrlList = []
-reviewsList = []
+        titleList.append(title)
+        youtuberList.append(youtuber)
+        categoryList.append(keyword[k])
 
-for content in html.select('a#video-title'):
-    title = content.get('title')
-    content_url = 'https://www.youtube.com' + content.get('href')
+    # 유튜브 내용을 저장할 딕셔너리 생성
+    yt_dic = {
+        '영상제목' : titleList,
+        '유튜버' : youtuberList,
+        '카테고리' : categoryList
+    }
 
-    start_pos = content.get('aria-label').find('조회수') + 4
-    end_pos = content.get('aria-label').rfind('회')
+    # 데이터 프레임 생성
+    yt_df = pd.DataFrame(yt_dic)
+    print(yt_df)
 
-    reviews = content.get('aria-label')[start_pos:end_pos]
-
-    titleList.append(title)
-    contentUrlList.append(content_url)
-    reviewsList.append(reviews)
-
-#     print('영상제목:', title)
-#     print('영상주소:', content_url)
-#     print('조회수:', reviews)
-#     print('-'*30)
-
-# 유튜브 내용을 저장할 딕셔너리 생성
-yt_dic = {
-    '영상제목' : titleList,
-    '영상주소' : contentUrlList,
-    '조회수' : reviewsList
-}
-
-# 데이터 프레임 생성
-yt_df = pd.DataFrame(yt_dic)
-print(yt_df)
-
-yt_df.to_csv('./data_{}.csv'.format(datetime.datetime.now().strftime('%Y%m%d')), index=False)
+    yt_df.to_csv('./data_{}_{}.csv'.format(keyword[k], datetime.datetime.now().strftime('%Y%m%d')), index=False)
