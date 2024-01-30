@@ -73,13 +73,14 @@ try:
     driver.get(yt_url)
 except:
     print('drivet.get', keyword)
-
+time.sleep(3)
 for i in range(10):
 
     text_list = driver.find_element(By.CLASS_NAME,'style-scope ytd-feed-filter-chip-bar-renderer').find_elements(By.CLASS_NAME,
                                                                                                      'style-scope yt-chip-cloud-chip-renderer')
 
     keywords = ['악','게임','축구', '야구', '농구','요리','음식','애완동물','반려동물','개','고양이','자연']
+    #keywords = ['음악', '임', '구', '구', '구', '리', '식', '완동물', '반동물', '3', '고ㅇ', 'ㅇ연']
     key_num = [0, 1, 2, 2, 2, 3, 4, 5, 5, 5, 5, 6]
     key_label = ['music','game','sports','cook','pets','nature']
     class_list=[]

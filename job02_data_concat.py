@@ -5,7 +5,7 @@ import datetime
 last_data = []
 
 
-data_paths = glob.glob('./data/data_*')
+data_paths = glob.glob('./predict_data/data_*')
 
 
 print(last_data)
@@ -23,6 +23,8 @@ if not df.empty:
     else:
         print("Column 'keyword' not found in the DataFrame.")
 
+    df.info()
+    df.drop_duplicates(subset='titles',inplace=True)
     df.info()
 
     df.to_csv('./Youtube_titles_{}.csv'.format(
