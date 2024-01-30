@@ -1,6 +1,7 @@
 from selenium import webdriver as wb
 from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup as bs
+from selenium.webdriver.chrome.options import Options
 
 import re
 import random
@@ -37,67 +38,36 @@ def scroll():
     except Exception as e:
         print("에러 발생: ", e)
 
-
-# f-string
 keywords = ['music','음악','game','게임','sports','스포츠','cook','요리','pets','애완동물','nature','자연']
 key_count = 0
-
+options = Options()
+options.add_argument('--start-maximized')
 
 for keyword in keywords:
 
     yt_url = f'https://www.youtube.com/results?search_query={keyword}'
-    driver = wb.Chrome()
+    driver = wb.Chrome(options=options)
     try:
         driver.get(yt_url)
     except:
         print('drivet.get', keyword)
         continue
-
-
-    # 브라우저 로드가 완료되기 위한 시간
     time.sleep(2)
 
-    #driver.find_element(By.XPATH, '//*[@id="text"]').click()
-
-
-
-    #body = driver.find_element(By.TAG_NAME, value='body')
-
-    # 스크롤 key값 활용: PageDown, PageUp, 방향기(위/아래)
     scroll()
-
-    # selenium을 이용해서 HTML문서를 변환한 후에는 반드시 브라우저를 종료해야 한다!
     html = bs(driver.page_source, 'html.parser')
     #print(html)
 
     driver.close()
     if key_count % 2 == 0:
         titleList=[]
-     #contentUrlList = []
-        #reviewsList = []
-    # #    print(title_tag.text)
-    #     titles.append(re.compile('[^가-힣 | a-z | A-Z]').sub(' ',title_tag.text)) #정규표현식이용
+
     for content in html.select('a#video-title'):
         title = content.get('title')
         title = re.compile('[^가-힣a-zA-Z]').sub(' ', title)
-        # content_url = 'https://www.youtube.com' + content.get('href')
-        #
-        # start_pos = content.get('aria-label').find('조회수') + 4
-        # end_pos = content.get('aria-label').rfind('회')
-        #
-        # reviews = content.get('aria-label')[start_pos:end_pos]
 
         titleList.append(title)
-      #  contentUrlList.append(content_url)
-      #  reviewsList.append(reviews)
 
-    #     print('영상제목:', title)
-    #     print('영상주소:', content_url)
-    #     print('조회수:', reviews)
-    #     print('-'*30)
-
-
-    # 유튜브 내용을 저장할 딕셔너리 생성
     key_label_num =2*int(key_count/2)
 
     if key_count % 2 == 1:
